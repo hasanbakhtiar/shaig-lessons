@@ -6,6 +6,7 @@ const productSchema = mongoose.Schema(
     productID: String,
     slug: String,
     thumbnail: String,
+    images: Array,
     title: String,
     price: Number,
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
@@ -23,6 +24,7 @@ const productValidate = (product) => {
     productID: Joi.string(),
     slug: Joi.string(),
     thumbnail: Joi.string(),
+    images: Joi.array(),
     title: Joi.string().min(2).max(20).messages({
       'string.min': '2 simvoldan artiq olmalidir',
       'string.max': '20den artiq simvol qadagandir',

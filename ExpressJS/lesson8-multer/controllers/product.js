@@ -1,7 +1,10 @@
 const { default: slugify } = require('slugify');
 const { Product, productValidate } = require('../models/product');
 const { generateSecureUniqueId } = require('../utils/idGenerator');
-const { deleteSingleOldImage } = require('../utils/deleteOldImage');
+const {
+  deleteSingleOldImage,
+  deleteManyOldImage,
+} = require('../utils/deleteOldImage');
 exports.searchProduct = async (req, res) => {
   let product;
   if (req.query.keyword) {
@@ -24,13 +27,34 @@ exports.singleProduct = async (req, res) => {
 
 exports.listProduct = async (req, res) => {
   let product;
-  if (req.query.category) {
-    product = await Product.find({ category: req.query.category }).populate(
-      'category'
-    );
+
+  if (req.query.page || req.query.limit) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const total = await Product.countDocuments();
+    product = await Product.find().skip(skip).limit(limit).exec();
+    res.status(200).json({
+      page: page,
+      limit: limit,
+      totalPages: Math.ceil(total / limit),
+      totalProducts: total,
+      product: product,
+    });
   } else {
-    product = await Product.find().populate('category');
+    if (req.query.category || req.query.title || req.query.price) {
+      product = await Product.find({
+        title: req.query.title,
+        price: req.query.price,
+        category: req.query.category,
+      })
+        .sort({ price: -1, title: 1 })
+        .populate('category');
+    } else {
+      product = await Product.find().populate('category');
+    }
   }
+
   res.status(200).json({
     dataLength: product.length,
     data: product,
@@ -47,9 +71,15 @@ exports.createProduct = async (req, res) => {
     const product = new Product(req.body);
     product.slug = slugify(req.body.title) + generateSecureUniqueId();
     product.productID = generateSecureUniqueId();
-
-    if (req.file) {
-      product.thumbnail = req.file.path;
+    let filesObj = req.files;
+    let filesObjLength = Object.keys(filesObj).length;
+    if (filesObjLength !== 0) {
+      const uploadFile = [];
+      req.files.images.map(async (item) => {
+        uploadFile.push(item.path);
+      });
+      product.images = uploadFile;
+      product.thumbnail = req.files.thumbnail[0].path;
       const result = await product.save();
       res.status(201).json({
         statusMessage: 'Created',
@@ -74,7 +104,9 @@ exports.updateProduct = async (req, res) => {
     });
   } else {
     let product;
-    if (req.file) {
+    let filesObj = req.files;
+    let filesObjLength = Object.keys(filesObj).length;
+    if (filesObjLength !== 0) {
       product = await Product.findByIdAndUpdate(req.params.id, {
         ...req.body,
       });
@@ -83,8 +115,20 @@ exports.updateProduct = async (req, res) => {
           statusMessage: 'This product not found',
         });
       } else {
-        // deleteSingleOldImage(product.thumbnail);
-        product.thumbnail = req.file.path;
+        product = await Product.findByIdAndUpdate(req.params.id, {
+          ...req.body,
+        });
+        const oldImages = product.images;
+        deleteManyOldImage(oldImages);
+        const oldThumbnail = product.thumbnail;
+        deleteSingleOldImage(oldThumbnail);
+        const uploadFile = [];
+        req.files.images.map(async (item) => {
+          uploadFile.push(item.path);
+        });
+        product.images = uploadFile;
+        product.thumbnail = req.files.thumbnail[0].path;
+        await product.save();
         res.status(200).json({
           statusMessage: 'Product was updated!',
           data: product,
@@ -110,6 +154,8 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id);
+  deleteSingleOldImage(product.thumbnail);
+  deleteManyOldImage(product.images);
   if (!product) {
     res.status(404).json({
       statusMessage: 'This product not found',
