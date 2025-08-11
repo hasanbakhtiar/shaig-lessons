@@ -13,8 +13,8 @@ const swaggerDocs = require('./swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
-const {accessToken} = require('./middlewares/staticAccess');
-app.use(accessToken);
+// const {accessToken} = require('./middlewares/staticAccess');
+// app.use(accessToken);
 
 const surfaceRoute = require('./routes/surface');
 app.use('/api',surfaceRoute);
@@ -26,15 +26,15 @@ const productRoute = require('./routes/admin/product');
 const categoryRoute = require('./routes/admin/category');
 const userRoute = require('./routes/admin/user');
 
-const auth = require('./middlewares/auth');
-app.use(auth);
+// const auth = require('./middlewares/auth');
+// app.use(auth);
 
 const accountRoute = require('./routes/needAuth/account');
 app.use('/account',accountRoute);
 
 
-const isAdmin = require('./middlewares/isAdmin');
-app.use(isAdmin);
+// const isAdmin = require('./middlewares/isAdmin');
+// app.use(isAdmin);
 app.use('/ad/category',categoryRoute);
 app.use('/ad/product',productRoute);
 app.use('/ad/user',userRoute);

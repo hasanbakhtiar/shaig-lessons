@@ -1,0 +1,7 @@
+1.Products
+2.Category
+3.User
+4.Login/Register
+5.Basket
+6.Wishlist
+7.Order
