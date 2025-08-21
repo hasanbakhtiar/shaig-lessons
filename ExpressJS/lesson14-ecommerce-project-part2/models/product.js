@@ -1,0 +1,40 @@
+const Joi = require('joi');
+const { default: mongoose } = require('mongoose');
+
+const productSchema = mongoose.Schema(
+  {
+    productID: String,
+    slug: String,
+    thumbnail: String,
+    images: Array,
+    title: String,
+    price: Number,
+    discountPrice: Number,
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    description: String,
+    active: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const productValidate = (product) => {
+  const schema = new Joi.object({
+    productID: Joi.string(),
+    slug: Joi.string(),
+    thumbnail: Joi.string(),
+    images: Joi.array(),
+    title: Joi.string(),
+    price: Joi.number(),
+    discountPrice: Joi.number(),
+    category: Joi.string(),
+    description: Joi.string(),
+    active: Joi.boolean(),
+  });
+  return schema.validate(product);
+};
+
+const Product = mongoose.model('Product', productSchema);
+module.exports = { Product, productValidate };
