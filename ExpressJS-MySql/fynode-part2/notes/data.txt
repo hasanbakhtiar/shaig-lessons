@@ -1,0 +1,23 @@
+referance project link = https://klbtheme.com/fynode/
+
+
+#All Pages
+1.Home Page
+2.About Page
+3.Product Page
+4.Product Details Page
+5.Contact Page
+6.Login Page
+7.Register Page
+8.Account Page
+9.Basket Page
+10.Wishlist Page
+11.Checkout Page
+12.Order list Page
+
+#Functions
+1.Search
+2.Filter
+3.Sort
+4.Online Payment
+5.Send mail
