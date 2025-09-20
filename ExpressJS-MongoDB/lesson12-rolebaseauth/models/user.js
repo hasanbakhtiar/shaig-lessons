@@ -1,6 +1,6 @@
-const Joi = require('joi');
-const { default: mongoose } = require('mongoose');
-const jwt = require('jsonwebtoken');
+const Joi = require("joi");
+const { default: mongoose } = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const userSchema = mongoose.Schema(
   {
@@ -10,11 +10,11 @@ const userSchema = mongoose.Schema(
     password: String,
     role: {
       type: String,
-      enum: ['admin', 'mod', 'user'],
-      default: 'user',
+      enum: ["admin", "mod", "user"],
+      default: "user",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const validateUser = (user) => {
@@ -28,7 +28,7 @@ const validateUser = (user) => {
   return schema.validate(user);
 };
 
-userSchema.methods.createAuthToken = function () {
+userSchema.methods.createAuthToken = function() {
   const decodedToken = jwt.sign(
     {
       _id: this._id,
@@ -37,10 +37,10 @@ userSchema.methods.createAuthToken = function () {
       phone: this.phone,
       role: this.role,
     },
-   "jwtPrivateKey" 
+    "jwtPrivateKey",
   );
   return decodedToken;
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = { User, validateUser };
