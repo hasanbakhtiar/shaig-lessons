@@ -23,6 +23,7 @@ exports.singleAccount = async (req, res) => {
           fullname: user.fullname,
           email: user.email,
           phone: user.phone,
+
         },
       });
     } else {
@@ -55,6 +56,7 @@ exports.login = async (req, res) => {
               fullname: user.fullname,
               email: user.email,
               phone: user.phone,
+              token: token
             },
           });
       } else {
