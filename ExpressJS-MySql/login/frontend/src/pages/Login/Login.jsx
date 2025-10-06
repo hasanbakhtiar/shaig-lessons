@@ -18,34 +18,31 @@ const Login = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/login`,
+        `http://localhost:3000/login`,
         {
           email: emailRef.current.value,
           password: passwordRef.current.value,
         },
-        {
-          headers: {
-            "static-access": import.meta.env.VITE_STATIC_ACCESS,
-          },
-        }
       );
+      console.log(response);
+      
       if (response.status === 200) {
-        if (response.data.token) {
-          setCookie("token", response.data.token, {
+        if (response.data.data.token) {
+          setCookie("token", response.data.data.token, {
             path: "/",
             maxAge: 3600,
             secure: true,
             sameSite: "strict",
           });
         }
-        toast.success("Giriş uğurlu!");
+        toast.success(response.data.message);
         navigate("/dashboard");
       } else {
-        toast.error(response.data.message || "Giriş uğursuz!");
+        toast.error(response.data.data.message );
       }
     } catch (error) {
       if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
+        toast.error(error.response.data.data.message);
       } else {
         toast.error("Server xətası! Yenidən cəhd edin.");
       }

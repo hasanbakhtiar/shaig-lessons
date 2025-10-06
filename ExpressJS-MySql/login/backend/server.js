@@ -7,10 +7,12 @@ const cors = require("cors");
 const sequelize = require("./config/sequelize");
 const { User } = require("./models/user");
 const refreshToken = require("./middlewares/refreshToken");
+const { Product } = require("./models/product");
+const auth = require("./middlewares/auth");
 app.use(express.json());
 app.use(cors());
 
-app.use(refreshToken);
+
 app.post('/login', async (req, res) => {
     try {
 
@@ -35,10 +37,10 @@ app.post('/login', async (req, res) => {
             } else {
                 res
                     .status(403)
-                    .json(errorMessage("Email or password is worng!", error));
+                    .json({errorMessage:"Email or password is worng!"});
             }
         } else {
-            res.status(404).json(errorMessage("This user is not existed", error));
+            res.status(404).json({errorMessage:"This user is not existed"});
         }
     } catch (error) {
         console.log(error);
@@ -79,6 +81,13 @@ app.post('/register', async (req, res) => {
     }
 });
 
+app.use(auth);
+
+app.get('/product',async(req,res)=>{
+    const product = await Product.findAll();
+    res.send(product)
+})
+app.use(refreshToken);
 
 
 
@@ -93,6 +102,7 @@ app.use("/", (req, res) => {
 // const migrationCall = () => {
 //   async function sync() {
 //     await User.sync({ force: true });
+//     await Product.sync({ force: true });
 //     console.log("User was created");
 //   }
 
