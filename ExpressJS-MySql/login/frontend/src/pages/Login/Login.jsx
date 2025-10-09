@@ -3,13 +3,11 @@ import BirsaytLogo from "../../assets/images/BirsaytLogo.png";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./_Login.scss";
-import { useCookies } from "react-cookie";
 import axios from "axios";
 
 const Login = () => {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,14 +25,7 @@ const Login = () => {
       console.log(response);
       
       if (response.status === 200) {
-        if (response.data.data.token) {
-          setCookie("token", response.data.data.token, {
-            path: "/",
-            maxAge: 3600,
-            secure: true,
-            sameSite: "strict",
-          });
-        }
+        
         toast.success(response.data.message);
         navigate("/dashboard");
       } else {

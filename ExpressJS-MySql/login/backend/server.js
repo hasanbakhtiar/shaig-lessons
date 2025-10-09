@@ -1,12 +1,10 @@
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
-
+const jwt = require('jsonwebtoken');
 //middleware start
 const cors = require("cors");
-const sequelize = require("./config/sequelize");
 const { User } = require("./models/user");
-const refreshToken = require("./middlewares/refreshToken");
 const { Product } = require("./models/product");
 const auth = require("./middlewares/auth");
 app.use(express.json());
@@ -14,6 +12,9 @@ app.use(cors());
 
 
 app.post('/login', async (req, res) => {
+
+    const ACCESS_SECRET = "supersecretaccess12345";
+    const REFRESH_SECRET = "supersecretrefresh12345";
     try {
 
         const user = await User.findOne({ where: { email: req.body.email } });
@@ -21,26 +22,32 @@ app.post('/login', async (req, res) => {
             const isSuccess = await bcrypt.compare(req.body.password, user.password);
 
             if (isSuccess) {
-                const token = user.createAuthToken();
-                res
-                    .status(200)
-                    .header("x-auth-token", token)
+                const accessToken = jwt.sign({ id: user.id }, ACCESS_SECRET, { expiresIn: "15m" });
+                const refreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET, { expiresIn: "7d" });
+
+                // HttpOnly cookies
+                res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 15 * 60 * 1000 });
+                res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 7 * 24 * 60 * 60 * 1000 });
+                res.status(200)
+                    .header("x-auth-token", accessToken)
                     .json({
                         message: "Login is successfully",
                         data: {
                             fullname: user.fullname,
                             email: user.email,
                             phone: user.phone,
-                            token: token
+                            token: accessToken
                         },
                     });
+                    console.log(accessToken,"======",refreshToken);
+                    
             } else {
                 res
                     .status(403)
-                    .json({errorMessage:"Email or password is worng!"});
+                    .json({ errorMessage: "Email or password is worng!" });
             }
         } else {
-            res.status(404).json({errorMessage:"This user is not existed"});
+            res.status(404).json({ errorMessage: "This user is not existed" });
         }
     } catch (error) {
         console.log(error);
@@ -63,16 +70,11 @@ app.post('/register', async (req, res) => {
         // DB-yə user əlavə edirik
         const user = await User.create(dataBody);
 
-        // Refresh token generate edirik
-        const refreshToken = user.createRefreshToken();
-
-        // DB-də user-in refresh tokenini saxlayırıq
-        await user.update({ refreshToken });
+        
 
         res.status(201).json({
             message: "Created",
             data: user,
-            refreshToken
         });
 
     } catch (error) {
@@ -83,11 +85,10 @@ app.post('/register', async (req, res) => {
 
 app.use(auth);
 
-app.get('/product',async(req,res)=>{
+app.get('/product', async (req, res) => {
     const product = await Product.findAll();
     res.send(product)
 })
-app.use(refreshToken);
 
 
 
@@ -99,23 +100,6 @@ app.use("/", (req, res) => {
     res.status(200).send("App Start");
 });
 
-// const migrationCall = () => {
-//   async function sync() {
-//     await User.sync({ force: true });
-//     await Product.sync({ force: true });
-//     console.log("User was created");
-//   }
-
-//   sync();
-// };
-
-// migrationCall();
-
-//Sequelize Start
-// async function migration() {
-//     await sequelize.sync({ force: true });
-// }
-// migration()
 
 //Server Start
 app.listen(3000, () => {

@@ -1,4 +1,3 @@
-
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
@@ -49,7 +48,6 @@ const userValidate = (user) => {
   return schema.validate(user);
 };
 
-
 User.prototype.createAuthToken = function() {
   const accessToken = jwt.sign(
     {
@@ -59,8 +57,8 @@ User.prototype.createAuthToken = function() {
       phone: this.phone,
       role: this.role,
     },
-   "accessPrivateKey",
-    { expiresIn: "15m" } 
+    "accessPrivateKey",
+    { expiresIn: "15m" },
   );
   return accessToken;
 };
@@ -74,12 +72,10 @@ User.prototype.createRefreshToken = function() {
       phone: this.phone,
       role: this.role,
     },
-     "refreshPrivateKey",
-    { expiresIn: "7d" } 
+    "refreshPrivateKey",
+    { expiresIn: "7d" },
   );
   return refreshToken;
 };
-
-
 
 module.exports = { User, userValidate };
