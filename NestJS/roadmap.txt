@@ -1,0 +1,7 @@
+1.Methods (GET POST PUT DELETE)
+2.Routes (:id)
+3.Middleware
+4.Database connection
+5.Upload file (multer)
+6.Relationships
+7.Auth
