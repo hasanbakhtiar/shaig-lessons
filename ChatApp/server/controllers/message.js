@@ -1,5 +1,22 @@
 const { Message } = require("../models/message");
 
+exports.listMessageforUser = async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    const messages = await Message.findAll({
+      where: { userId: userid },
+    });
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+
+
 
 exports.listMessage = async (req, res) => {
   try {
@@ -24,16 +41,22 @@ exports.listSingleMessage = async (req, res) => {
 
 exports.createMessage = async (req, res) => {
   try {
+    const { userid } = req.params;
+
     const dataBody = {
       ...req.body,
+      userId: userid, // user id-ni əlavə edirik
     };
+
     const message = await Message.create(dataBody);
+
     res.status(201).json(message);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
   }
 };
+
 
 
 exports.deleteSingleMessage = async (req, res) => {
