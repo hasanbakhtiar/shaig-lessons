@@ -8,10 +8,13 @@ const Message = sequelize.define(
         message: {
             type: DataTypes.STRING,
             allowNull: true,
+        }, senderId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
-        userId:{
-            type:DataTypes.NUMBER,
-            allowNull:false
+        receiverId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         }
     },
     { timestamps: true },

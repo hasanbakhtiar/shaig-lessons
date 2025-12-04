@@ -5,7 +5,7 @@ exports.listMessageforUser = async (req, res) => {
     const { userid } = req.params;
 
     const messages = await Message.findAll({
-      where: { userId: userid },
+      where: { receiverId: userid },
     });
 
     res.status(200).json(messages);
@@ -41,21 +41,23 @@ exports.listSingleMessage = async (req, res) => {
 
 exports.createMessage = async (req, res) => {
   try {
-    const { userid } = req.params;
+    const { userid } = req.params;   // receiverId
+    const { message, senderId } = req.body;
 
-    const dataBody = {
-      ...req.body,
-      userId: userid, // user id-ni əlavə edirik
-    };
+    const newMessage = await Message.create({
+      senderId,
+      receiverId: userid,
+      message
+    });
 
-    const message = await Message.create(dataBody);
+    res.status(201).json(newMessage);
 
-    res.status(201).json(message);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
   }
 };
+
 
 
 

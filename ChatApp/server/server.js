@@ -16,14 +16,32 @@ const messageRouter = require('./routers/message');
 app.use('/message', messageRouter);
 
 // Relations
-const relationCall = () => {
-    Message.belongsTo(User, {
-        foreignKey: {
-            allowNull: true,
-        },
-    });
-    User.hasMany(Message);
-};
+// const relationCall = () => {
+//     // Göndərən
+//     Message.belongsTo(User, {
+//         as: "sender",
+//         foreignKey: "senderId"
+//     });
+
+//     // Alan
+//     Message.belongsTo(User, {
+//         as: "receiver",
+//         foreignKey: "receiverId"
+//     });
+
+//     // Bir istifadəçinin göndərdiyi mesajlar
+//     User.hasMany(Message, {
+//         as: "sentMessages",
+//         foreignKey: "senderId"
+//     });
+
+//     // Bir istifadəçinin aldığı mesajlar
+//     User.hasMany(Message, {
+//         as: "receivedMessages",
+//         foreignKey: "receiverId"
+//     });
+// };
+
 // relationCall();
 
 // // Sync
